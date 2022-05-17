@@ -13,4 +13,5 @@ import           GHC.Core.TyCo.Rep as Ghc
 import           GHC.Types.Name as Ghc hiding (varName)
 import           GHC.Tc.Types.Constraint as Ghc
 import           GHC.Core.Class as Ghc
+import           GHC.Types.TyThing as Ghc
 -- import           GHC.Driver.Plugins as Ghc
