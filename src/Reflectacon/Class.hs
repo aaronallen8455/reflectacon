@@ -1,7 +1,5 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
@@ -12,7 +10,7 @@ module Reflectacon.Class
   ) where
 
 import           Data.Kind (Constraint, Type)
-import           Data.Type.Equality ((:~:))
+-- import           Data.Type.Equality ((:~:))
 import           Numeric.Natural
 import           GHC.TypeLits
 

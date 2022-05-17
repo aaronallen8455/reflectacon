@@ -1,28 +1,27 @@
 {-# LANGUAGE LambdaCase #-}
 module Reflectacon
-  ( plugin
+  ( Reflect(..)
+  , RewriteLits
+  , plugin
   ) where
 
-import           Control.Applicative (asum, empty)
-import           Control.Monad (guard)
+import           Control.Applicative (empty)
 import           Control.Monad.Trans.Class (lift)
 import           Control.Monad.Trans.Maybe
-import           Data.Foldable
-import qualified Data.Generics as Syb
 import           Data.Maybe
 import           Data.Traversable
-import qualified Reflectacon.GhcFacade as Ghc
 
-import           Debug.Trace
+import qualified Reflectacon.GhcFacade as Ghc
+import           Reflectacon.Class
 
 plugin :: Ghc.Plugin
 plugin = Ghc.defaultPlugin
-  { Ghc.tcPlugin = const tcPlugin
+  { Ghc.tcPlugin = const (Just tcPlugin)
   , Ghc.pluginRecompile = Ghc.purePlugin
   }
 
-tcPlugin :: Maybe Ghc.TcPlugin
-tcPlugin = Just
+tcPlugin :: Ghc.TcPlugin
+tcPlugin =
   Ghc.TcPlugin
     { Ghc.tcPluginInit = lookupClass "Reflect"
     , Ghc.tcPluginSolve = solver
@@ -60,7 +59,7 @@ reflectPromotedCon con args = do
   pure $ Ghc.mkCoreConApps con argExprs
 
 solver :: Ghc.Name {- -> Ghc.EvBindsVar -} -> Ghc.TcPluginSolver
-solver className _ givens wanteds = do
+solver className _ _ wanteds = do
   let cts = filter (matchesClassName className) wanteds
       solve ct = do
         [_, Ghc.TyConApp con args] <- pure $ Ghc.cc_tyargs ct
