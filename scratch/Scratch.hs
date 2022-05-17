@@ -15,5 +15,5 @@ test = reflect @_ @b
 test2 :: forall k (a :: k). Reflect k a => k
 test2 = reflect @_ @a
 
-x :: (Bool, Bool, Bool)
-x = test2 @_ @'(True, True, False)
+x :: [(Bool, Bool)]
+x = reflect @_ @'[ '(True, False), '(False, True)]
