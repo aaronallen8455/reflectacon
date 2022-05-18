@@ -8,22 +8,21 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE PolyKinds #-}
 module Reflectacon.Class
-  ( Reflect(..)
+  ( Reflectable(..)
   , RewriteLits
   , unify
   ) where
 
 import           Data.Kind (Constraint, Type)
 import           GHC.TypeLits
-import           Numeric.Natural
 import           Type.Reflection
 
-class Reflect (kind :: Type) (a :: kind) where
+class Reflectable (kind :: Type) (a :: kind) where
   reflect :: RewriteLits kind
 
 type family RewriteLits (ty :: k) :: k where
   RewriteLits Symbol  = String
-  RewriteLits Nat     = Natural
+  RewriteLits Nat     = Integer
   RewriteLits (con a) = (RewriteLits con) (RewriteLits a)
   RewriteLits a       = a
 

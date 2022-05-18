@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 module Reflectacon
-  ( Reflect(..)
+  ( Reflectable(..)
   , RewriteLits
   , plugin
   , unify
@@ -24,7 +24,7 @@ plugin = Ghc.defaultPlugin
 tcPlugin :: Ghc.TcPlugin
 tcPlugin =
   Ghc.TcPlugin
-    { Ghc.tcPluginInit = lookupClass "Reflect"
+    { Ghc.tcPluginInit = lookupClass "Reflectable"
     , Ghc.tcPluginSolve = solver
     -- , Ghc.tcPluginRewrite = const Ghc.emptyUFM
     , Ghc.tcPluginStop = const $ pure ()
@@ -54,7 +54,7 @@ reflectPromotedCon con args = do
 
 reflectTyLit :: Ghc.TyLit -> Ghc.TcPluginM Ghc.CoreExpr
 reflectTyLit = \case
-  Ghc.NumTyLit integer -> pure $ Ghc.mkNaturalExpr integer
+  Ghc.NumTyLit integer -> pure $ Ghc.mkIntegerExpr integer
   Ghc.StrTyLit string ->
     Ghc.mkStringExprFSWith
       (fmap Ghc.tyThingId . Ghc.tcLookupGlobal)
@@ -65,16 +65,15 @@ solver :: Ghc.Name {- -> Ghc.EvBindsVar -} -> Ghc.TcPluginSolver
 solver className _ _ wanteds = do
   let cts = filter (matchesClassName className) wanteds
       solve ct = do
-        [_, tyCon] <- pure $ Ghc.cc_tyargs ct
-        case tyCon of
+        [_, ty] <- pure $ Ghc.cc_tyargs ct
+        expr <- case ty of
           Ghc.TyConApp con args -> do
             dataCon <- MaybeT . pure $ Ghc.isPromotedDataCon_maybe con
-            expr <- reflectPromotedCon dataCon args
-            pure (Ghc.EvExpr expr, ct)
-          Ghc.LitTy tyLit -> do
-            expr <- lift $ reflectTyLit tyLit
-            pure (Ghc.EvExpr expr, ct)
+            reflectPromotedCon dataCon args
+          Ghc.LitTy tyLit ->
+            lift $ reflectTyLit tyLit
           _ -> empty
+        pure (Ghc.EvExpr expr, ct)
 
   solvedCts <- catMaybes <$> traverse (runMaybeT . solve) cts
 

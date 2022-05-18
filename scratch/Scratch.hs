@@ -8,15 +8,14 @@
 module Scratch where
 
 import           Reflectacon.Class
-import           Numeric.Natural
 
-test :: forall (b :: Bool). Reflect Bool b => Bool
+test :: forall (b :: Bool). Reflectable Bool b => Bool
 test = reflect @_ @b
 
-test2 :: forall k (a :: k). Reflect k a => RewriteLits k
+test2 :: forall k (a :: k). Reflectable k a => RewriteLits k
 test2 = reflect @_ @a
 
 newtype Foo a = Foo a deriving Show
 
-x :: Foo (Maybe [Natural])
+x :: Foo (Maybe [Integer])
 x = reflect @_ @('Foo (Just [34, 5]))
