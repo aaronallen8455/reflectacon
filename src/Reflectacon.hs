@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module Reflectacon
-  ( Reflectable(..)
+  ( Reflectable
+  , reflect
   , RewriteLits
   , plugin
   , unify

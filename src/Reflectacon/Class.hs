@@ -8,7 +8,8 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE PolyKinds #-}
 module Reflectacon.Class
-  ( Reflectable(..)
+  ( Reflectable
+  , reflect
   , RewriteLits
   , unify
   ) where
@@ -18,7 +19,10 @@ import           GHC.TypeLits
 import           Type.Reflection
 
 class Reflectable (kind :: Type) (a :: kind) where
-  reflect :: RewriteLits kind
+  reflect_ :: RewriteLits kind
+
+reflect :: forall kind (a :: kind). Reflectable kind a => RewriteLits kind
+reflect = reflect_ @kind @a
 
 type family RewriteLits (ty :: k) :: k where
   RewriteLits Symbol  = String
