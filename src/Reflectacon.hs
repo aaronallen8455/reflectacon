@@ -4,7 +4,6 @@ module Reflectacon
   , reflect
   , RewriteLits
   , plugin
-  , unify
   ) where
 
 import           Control.Applicative (empty)
@@ -44,7 +43,7 @@ matchesClassName name = \case
 
 reflectPromotedCon :: Ghc.DataCon -> [Ghc.KindOrType] -> MaybeT Ghc.TcPluginM Ghc.CoreExpr
 reflectPromotedCon con args = do
-  argExprs <- for args $ \arg -> case arg of
+  argExprs <- for args $ \arg -> case fromMaybe arg (Ghc.tcView arg) of
     Ghc.TyConApp argCon argArgs ->
       case Ghc.isPromotedDataCon_maybe argCon of
         Nothing -> pure $ Ghc.Type arg
@@ -62,12 +61,13 @@ reflectTyLit = \case
       string
   Ghc.CharTyLit ch -> pure $ Ghc.mkCharExpr ch
 
-solver :: Ghc.Name {- -> Ghc.EvBindsVar -} -> Ghc.TcPluginSolver
+solver :: Ghc.Name -> Ghc.TcPluginSolver
 solver className _ _ wanteds = do
   let cts = filter (matchesClassName className) wanteds
       solve ct = do
         [_, ty] <- pure $ Ghc.cc_tyargs ct
-        expr <- case ty of
+        -- use tcView to expand type synonyms
+        expr <- case fromMaybe ty (Ghc.tcView ty) of
           Ghc.TyConApp con args -> do
             dataCon <- MaybeT . pure $ Ghc.isPromotedDataCon_maybe con
             reflectPromotedCon dataCon args
