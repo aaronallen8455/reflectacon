@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE LambdaCase #-}
 module Reflectacon
   ( Reflectable
@@ -54,12 +55,20 @@ reflectPromotedCon con args = do
 
 reflectTyLit :: Ghc.TyLit -> Ghc.TcPluginM Ghc.CoreExpr
 reflectTyLit = \case
-  Ghc.NumTyLit integer -> pure $ Ghc.mkIntegerExpr integer
+  Ghc.NumTyLit integer ->
+#if MIN_VERSION_ghc(9,0,0)
+    pure $ Ghc.mkIntegerExpr integer
+#else
+    Ghc.unsafeTcPluginTcM $
+      Ghc.mkIntegerExpr integer
+#endif
   Ghc.StrTyLit string ->
     Ghc.mkStringExprFSWith
       (fmap Ghc.tyThingId . Ghc.tcLookupGlobal)
       string
+#if MIN_VERSION_ghc(9,2,0)
   Ghc.CharTyLit ch -> pure $ Ghc.mkCharExpr ch
+#endif
 
 solver :: Ghc.Name -> Ghc.TcPluginSolver
 solver className _ _ wanteds = do

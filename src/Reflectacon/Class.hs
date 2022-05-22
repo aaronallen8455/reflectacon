@@ -7,7 +7,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE PolyKinds #-}
 module Reflectacon.Class
-  ( Reflectable
+  ( Reflectable -- method not exported so that instances cannot be defined
   , reflect
   , RewriteLits
   ) where
@@ -16,6 +16,13 @@ import           Data.Kind (Constraint, Type)
 import           GHC.TypeLits
 import           Type.Reflection
 
+-- | Indicates that a type can be reflected.
+--
+-- Example:
+-- @
+-- getSymbols :: forall symbols. Reflectable [Symbol] symbols => [String]
+-- getSymbols = reflect \@_ \@symbols
+-- @
 class Reflectable (kind :: Type) (a :: kind) where
   reflect_ :: RewriteLits kind
 

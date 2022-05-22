@@ -33,7 +33,23 @@ x = reflect @_ @('Foo (TyFam "Just True"))
 y :: Ex
 y = reflect @_ @('MkEx 'True)
 
-type Syn = '(1,2, "test")
+type Syn = '(1, TyFam "Just True", "test")
 
-syn :: Foo (Integer, Integer, String)
+syn :: Foo (Integer, Maybe Bool, String)
 syn = reflect @_ @('Foo Syn)
+
+getSymbols :: forall symbols. Reflectable [Symbol] symbols => [String]
+getSymbols = reflect @_ @symbols
+
+--bar :: Bar Bool String
+bar = reflect @_ @(MkBar False "test")
+
+data Bar a b = MkBar a b deriving (Show, Eq)
+
+z :: Bool
+z = reflect @_ @(MkBar False "test") == MkBar False "test"
+
+data Z = Z [Bool] deriving Show
+
+zz :: Z
+zz = reflect @_ @('Z '[True, False])
