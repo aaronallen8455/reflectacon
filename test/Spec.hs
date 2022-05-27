@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
 import           Test.HUnit
+import           GHC.TypeLits
 
 import           Reflectacon
 
@@ -16,11 +17,25 @@ tests = test
 #if MIN_VERSION_ghc(9,2,0)
   , "Char" ~: 'a' ~=? reflect @_ @'a'
 #endif
-  , "Promoted" ~: MkFoo True False ~=? reflect @_ @('MkFoo 'True 'False)
+  ,"Promoted" ~: MkFoo True True ~=? reflect @_ @('MkFoo 'True 'True)
   , "Syn" ~: "Syn" ~=? reflect @_ @Syn
   , "Nested Syn" ~: Just "Syn" ~=? reflect @_ @(Just Syn)
+  , "Syn of syn" ~: "Syn" ~=? reflect @_ @Syn2
+  , "..." ~: MkCS "test" ~=? reflect @_ @(MkCS "test")
   ]
 
 data Foo a b = MkFoo a b deriving (Show, Eq)
 
 type Syn = "Syn"
+
+type Syn2 = Syn
+
+data ContainsSymbol = MkCS Symbol
+
+-- what about synonym of a synonym?
+--
+-- As a further experiment, could have reflect return a Maybe and construct
+-- a Nothing core expr in the plugin. See the panic still happens in that case
+-- Note that the panic only happens if the data constructor has two or more type arguments.
+-- If the panic still happens with the Nothing, then it surely not due to the expr
+-- being constructed and is instead truly a bug in GHC and 8.10 should not be supported.

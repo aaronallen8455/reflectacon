@@ -32,21 +32,4 @@ import           GHC.Types.Id.Info as Ghc
 import           GHC.Types.Name as Ghc hiding (varName)
 import           GHC.Types.Var as Ghc
 
-#elif MIN_VERSION_ghc(8,10,0)
-
-import           Plugins as Ghc hiding (TcPlugin)
-import           TcRnTypes as Ghc
-import           TcEvidence as Ghc
-import           TyCoRep as Ghc
-import           TyCon as Ghc
-import           Type as Ghc
-import           Constraint as Ghc
-import           Name as Ghc
-import           HscTypes as Ghc
-import           MkCore as Ghc
-import           CoreSyn as Ghc
-import           DataCon as Ghc
-import           TcPluginM as Ghc
-import           Module as Ghc
-
 #endif

@@ -3,7 +3,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE PolyKinds #-}
 module Reflectacon.Class
@@ -23,7 +22,7 @@ import           Type.Reflection
 -- getSymbols :: forall symbols. Reflectable [Symbol] symbols => [String]
 -- getSymbols = reflect \@_ \@symbols
 -- @
-class Reflectable (kind :: Type) (a :: kind) where
+class Reflectable (a :: kind) where
   reflect_ :: RewriteLits kind
 
 -- | Reflect a promoted data constructor or type level iteral to a value.
@@ -33,7 +32,7 @@ class Reflectable (kind :: Type) (a :: kind) where
 --
 -- >>> reflect @_ @'[1, 2, 3]
 -- [1,2,3]
-reflect :: forall kind (a :: kind). Reflectable kind a => RewriteLits kind
+reflect :: forall kind (a :: kind). Reflectable a => RewriteLits kind
 reflect = reflect_ @kind @a
 
 type family RewriteLits (ty :: k) :: k where

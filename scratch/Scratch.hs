@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
@@ -12,10 +13,10 @@ module Scratch where
 import           Reflectacon.Class
 import           GHC.TypeLits
 
-test :: forall (b :: Bool). Reflectable Bool b => Bool
+test :: forall (b :: Bool). Reflectable b => Bool
 test = reflect @_ @b
 
-test2 :: forall k (a :: k). Reflectable k a => RewriteLits k
+test2 :: forall k (a :: k). Reflectable a => RewriteLits k
 test2 = reflect @_ @a
 
 newtype Foo a = Foo a deriving Show
@@ -27,18 +28,20 @@ instance Show Ex where show _ = "MkEx"
 type family TyFam a where
   TyFam "Just True" = 'Just 'True
 
-x :: Foo (Maybe Bool)
-x = reflect @_ @('Foo (TyFam "Just True"))
+-- TODO this should be allowed
+-- x :: Foo (Maybe Bool)
+-- x = reflect @(Foo (Maybe Bool)) @('Foo (TyFam "Just True"))
 
 y :: Ex
 y = reflect @_ @('MkEx 'True)
 
-type Syn = '(1, TyFam "Just True", "test")
+-- TODO this should be allowed
+-- type Syn = '(1, TyFam "Just True", "test")
+-- 
+-- syn :: Foo (Integer, Maybe Bool, String)
+-- syn = reflect @_ @('Foo Syn)
 
-syn :: Foo (Integer, Maybe Bool, String)
-syn = reflect @_ @('Foo Syn)
-
-getSymbols :: forall symbols. Reflectable [Symbol] symbols => [String]
+getSymbols :: forall (symbols :: [Symbol]). Reflectable symbols => [String]
 getSymbols = reflect @_ @symbols
 
 --bar :: Bar Bool String
@@ -53,3 +56,10 @@ data Z = Z [Bool] deriving Show
 
 zz :: Z
 zz = reflect @_ @('Z '[True, False])
+
+data HasVar b = MkHasVar (Maybe b) deriving Show
+zzzz = reflect @_ @(MkHasVar (Just "test"))
+
+x' :: Bool
+x' = reflect @_ @'True
+
