@@ -28,18 +28,16 @@ instance Show Ex where show _ = "MkEx"
 type family TyFam a where
   TyFam "Just True" = 'Just 'True
 
--- TODO this should be allowed
--- x :: Foo (Maybe Bool)
--- x = reflect @(Foo (Maybe Bool)) @('Foo (TyFam "Just True"))
+x :: Foo (Maybe Bool)
+x = reflect @(Foo (Maybe Bool)) @('Foo (TyFam "Just True"))
 
 y :: Ex
 y = reflect @_ @('MkEx 'True)
 
--- TODO this should be allowed
--- type Syn = '(1, TyFam "Just True", "test")
--- 
--- syn :: Foo (Integer, Maybe Bool, String)
--- syn = reflect @_ @('Foo Syn)
+type Syn = '(1, TyFam "Just True", "test")
+
+syn :: Foo (Integer, Maybe Bool, String)
+syn = reflect @_ @('Foo Syn)
 
 getSymbols :: forall (symbols :: [Symbol]). Reflectable symbols => [String]
 getSymbols = reflect @_ @symbols

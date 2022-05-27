@@ -29,4 +29,4 @@ strings :: [String]
 strings = reflect @_ @'["these", "are", "symbols"]
 ```
 
-Currently only GHC 9.2.* is supported
+Currently only GHC 9.0.* and 9.2.* are supported
