@@ -11,15 +11,13 @@ module Reflectacon.Class
   , RewriteLits
   ) where
 
-import           Data.Kind (Constraint, Type)
 import           GHC.TypeLits
-import           Type.Reflection
 
 -- | Indicates that a type can be reflected.
 --
 -- Example:
 -- @
--- getSymbols :: forall symbols. Reflectable [Symbol] symbols => [String]
+-- getSymbols :: forall (symbols :: [Symbol]). Reflectable symbols => [String]
 -- getSymbols = reflect \@_ \@symbols
 -- @
 class Reflectable (a :: kind) where

@@ -96,7 +96,12 @@ reflectPromotedCon conVarsSet con conArgs appArgs = do
 reflectTyLit :: Ghc.TyLit -> Ghc.TcPluginM Ghc.CoreExpr
 reflectTyLit = \case
   Ghc.NumTyLit integer ->
-    pure $ Ghc.mkIntegerExpr integer
+#if MIN_VERSION_ghc(9,0,0)
+    pure
+#else
+    Ghc.unsafeTcPluginTcM
+#endif
+    $ Ghc.mkIntegerExpr integer
   Ghc.StrTyLit string ->
     Ghc.mkStringExprFSWith
       (fmap Ghc.tyThingId . Ghc.tcLookupGlobal)
