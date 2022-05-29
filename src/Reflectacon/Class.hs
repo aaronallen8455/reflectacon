@@ -34,6 +34,8 @@ class Reflectable (a :: kind) where
 -- [1,2,3]
 reflect :: forall kind (a :: kind). Reflectable a => RewriteLits kind
 reflect = reflect_ @kind @a
+{-# NOINLINE reflect #-}
+-- NB: the simplifier can panic without this NOINLINE. TODO figure out why.
 
 type family RewriteLits (ty :: k) :: k where
   RewriteLits Symbol  = String

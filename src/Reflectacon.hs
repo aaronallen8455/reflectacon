@@ -54,21 +54,11 @@ reflectPromotedCon conVarsSet con conArgs appArgs = do
   guard $ length conArgs == length appArgs
   argExprs <- for (zip conArgs appArgs) $
     \(conArg, appArg) -> case expandTypeSynonym appArg of
-      Ghc.TyConApp argCon [] -> do
-        case Ghc.isPromotedDataCon_maybe argCon of
-          Nothing -> pure $ Ghc.Type appArg
-          Just argDataCon ->
-            reflectPromotedCon
-              mempty
-              argDataCon
-              []
-              []
-
       Ghc.TyConApp argCon argAppArgs ->
         case Ghc.isPromotedDataCon_maybe argCon of
           Nothing -> pure $ Ghc.Type appArg
           Just argDataCon -> do
-            case expandTypeSynonym $ Ghc.tyVarKind conArg of
+            newConVarsSet <- case expandTypeSynonym $ Ghc.tyVarKind conArg of
               Ghc.TyConApp conArgCon conArgAppArgs -> do
                 let conArgVars = Ghc.binderVars $ Ghc.tyConBinders conArgCon
                 guard $ length conArgAppArgs == length conArgVars
@@ -76,23 +66,18 @@ reflectPromotedCon conVarsSet con conArgs appArgs = do
                     filtered =
                       filter ((`Ghc.elementOfUniqSet` conVarsSet) . Ghc.getName . fst)
                       $ mapMaybe (bitraverse maybeTypeIsVar pure) zipped
-                    newConVarsSet = Ghc.mkUniqSet $ Ghc.getName . snd <$> filtered
-
-                reflectPromotedCon
-                  newConVarsSet
-                  argDataCon
-                  (Ghc.binderVars (Ghc.tyConBinders argCon))
-                  argAppArgs
+                pure . Ghc.mkUniqSet $ Ghc.getName . snd <$> filtered
 
               Ghc.TyVarTy _ -> do
                 let argConArgs = Ghc.binderVars $ Ghc.tyConBinders argCon
-                    argConArgSet = Ghc.mkUniqSet $ Ghc.getName <$> argConArgs
+                pure . Ghc.mkUniqSet $ Ghc.getName <$> argConArgs
+              _ -> empty
 
-                reflectPromotedCon
-                  argConArgSet
-                  argDataCon
-                  (Ghc.binderVars (Ghc.tyConBinders argCon))
-                  argAppArgs
+            reflectPromotedCon
+              newConVarsSet
+              argDataCon
+              (Ghc.binderVars (Ghc.tyConBinders argCon))
+              argAppArgs
 
       Ghc.LitTy tyLit
         -- only allow type literals that are type arguments, except for Char

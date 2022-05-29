@@ -47,8 +47,8 @@ bar = reflect @_ @(MkBar False "test")
 
 data Bar a b = MkBar a b deriving (Show, Eq)
 
-z :: Bool
-z = reflect @_ @(MkBar False "test") == MkBar False "test"
+z :: String
+z = show $ reflect @_ @(Just '("test","test"))
 
 data Z = Z [Bool] deriving Show
 
