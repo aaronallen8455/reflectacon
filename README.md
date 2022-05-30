@@ -29,4 +29,22 @@ strings :: [String]
 strings = reflect @_ @'["these", "are", "symbols"]
 ```
 
-Currently only GHC 8.10.*, 9.0.*, and 9.2.* are supported
+### Limitations:
+- There's one caveat about reflecting promoted constructors that contain string
+  and numeric literals: they must be in polymorphic fields.
+
+  Thus you can have
+  ```haskell
+  newtype Wrapper a = MkWrapper { unWrap :: a }
+  x = reflect @_ @(MkWrapper "hello")
+  ```
+  but this won't compile
+  ```haskell
+  newtype Wrapper = MkWrapper { unWrap :: Symbol }
+  x = reflect @_ @(MkWrapper "hello")
+  ```
+  Otherwise there'd have to be a value of type `Symbol`, which is not an
+  inhabited type, instead of being able to convert it to `String`. As a side
+  note, `Char` type literals do not have this limitation.
+
+- Currently only GHC 8.10.x, 9.0.x, and 9.2.x are supported

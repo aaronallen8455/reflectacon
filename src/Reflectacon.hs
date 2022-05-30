@@ -140,4 +140,5 @@ maybeTypeIsVar = \case
   _ -> Nothing
 
 expandTypeSynonym :: Ghc.Type -> Ghc.Type
-expandTypeSynonym = fromMaybe <*> Ghc.tcView
+expandTypeSynonym ty =
+  maybe ty expandTypeSynonym $ Ghc.tcView ty

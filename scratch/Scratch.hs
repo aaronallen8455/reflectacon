@@ -61,3 +61,9 @@ zzzz = reflect @_ @(MkHasVar (Just "test"))
 x' :: Bool
 x' = reflect @_ @'True
 
+type Syn' = "Syn"
+
+type Syn2 = Syn'
+
+x'' :: Bar String Integer
+x'' = reflect @_ @(MkBar Syn2 3)
